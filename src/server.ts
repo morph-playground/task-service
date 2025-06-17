@@ -11,4 +11,6 @@ const app = createApp({
 });
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`PERMISSION_SERVICE_HOST: ${PERMISSION_SERVICE_HOST}`);
+  console.log(`PERMISSION_SERVICE_PORT: ${PERMISSION_SERVICE_PORT}`);
 });
