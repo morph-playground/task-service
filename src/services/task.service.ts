@@ -8,8 +8,10 @@ export class TaskService {
   constructor(private permissionServiceClient: PermissionServiceClient) {}
 
   async createTask(userId: string, createTaskRequest: CreateTaskRequest): Promise<Task> {
+    console.log(`Creating task for user: ${userId}`);
     const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.CREATE);
     if (!hasPermission) {
+      console.error('Insufficient permissions to create task');
       throw new Error('Insufficient permissions to create task');
     }
 
@@ -20,15 +22,20 @@ export class TaskService {
     };
 
     this.tasks.push(task);
+    console.log(`Task created: ${task.id}`);
     return task;
   }
 
   async getTasks(userId: string): Promise<Task[]> {
+    console.log(`Fetching tasks for user: ${userId}`);
     const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.LIST);
     if (!hasPermission) {
+      console.error('Insufficient permissions to list tasks');
       throw new Error('Insufficient permissions to list tasks');
     }
 
-    return this.tasks.filter(task => task.userId === userId);
+    const userTasks = this.tasks.filter(task => task.userId === userId);
+    console.log(`Found ${userTasks.length} tasks for user: ${userId}`);
+    return userTasks;
   }
 }
