@@ -7,9 +7,9 @@ export class TaskService {
 
   constructor(private permissionServiceClient: PermissionServiceClient) {}
 
-  async createTask(userId: string, createTaskRequest: CreateTaskRequest): Promise<Task> {
-    console.log(`[TaskService] Checking CREATE permission for user: ${userId}`);
-    const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.CREATE);
+  async createTask(userId: string, createTaskRequest: CreateTaskRequest, tenantId?: string): Promise<Task> {
+    console.log(`[TaskService] Checking CREATE permission for user: ${userId}, tenant: ${tenantId}`);
+    const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.CREATE, tenantId);
     if (!hasPermission) {
       console.warn(`[TaskService] User ${userId} lacks permission to create task`);
       throw new Error('Insufficient permissions to create task');
@@ -26,9 +26,9 @@ export class TaskService {
     return task;
   }
 
-  async getTasks(userId: string): Promise<Task[]> {
-    console.log(`[TaskService] Checking LIST permission for user: ${userId}`);
-    const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.LIST);
+  async getTasks(userId: string, tenantId?: string): Promise<Task[]> {
+    console.log(`[TaskService] Checking LIST permission for user: ${userId}, tenant: ${tenantId}`);
+    const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.LIST, tenantId);
     if (!hasPermission) {
       console.warn(`[TaskService] User ${userId} lacks permission to list tasks`);
       throw new Error('Insufficient permissions to list tasks');
