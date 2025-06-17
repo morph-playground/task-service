@@ -7,11 +7,11 @@ export class TaskService {
 
   constructor(private permissionServiceClient: PermissionServiceClient) {}
 
-  async createTask(userId: string, createTaskRequest: CreateTaskRequest): Promise<Task> {
-    console.log(`[TaskService] Checking CREATE permission for user: ${userId}`);
-    const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.CREATE);
+  async createTask(userId: string, tenantId: string, createTaskRequest: CreateTaskRequest): Promise<Task> {
+    console.log(`[TaskService] Checking CREATE permission for user: ${userId}, tenant: ${tenantId}`);
+    const hasPermission = await this.permissionServiceClient.hasPermission(userId, tenantId, Domain.TASK, Action.CREATE);
     if (!hasPermission) {
-      console.warn(`[TaskService] User ${userId} lacks permission to create task`);
+      console.warn(`[TaskService] User ${userId} (tenant: ${tenantId}) lacks permission to create task`);
       throw new Error('Insufficient permissions to create task');
     }
 
@@ -22,20 +22,20 @@ export class TaskService {
     };
 
     this.tasks.push(task);
-    console.log(`[TaskService] Created task with id: ${task.id} for user: ${userId}`);
+    console.log(`[TaskService] Created task with id: ${task.id} for user: ${userId} tenant: ${tenantId}`);
     return task;
   }
 
-  async getTasks(userId: string): Promise<Task[]> {
-    console.log(`[TaskService] Checking LIST permission for user: ${userId}`);
-    const hasPermission = await this.permissionServiceClient.hasPermission(userId, Domain.TASK, Action.LIST);
+  async getTasks(userId: string, tenantId: string): Promise<Task[]> {
+    console.log(`[TaskService] Checking LIST permission for user: ${userId}, tenant: ${tenantId}`);
+    const hasPermission = await this.permissionServiceClient.hasPermission(userId, tenantId, Domain.TASK, Action.LIST);
     if (!hasPermission) {
-      console.warn(`[TaskService] User ${userId} lacks permission to list tasks`);
+      console.warn(`[TaskService] User ${userId} (tenant: ${tenantId}) lacks permission to list tasks`);
       throw new Error('Insufficient permissions to list tasks');
     }
 
     const userTasks = this.tasks.filter(task => task.userId === userId);
-    console.log(`[TaskService] Found ${userTasks.length} tasks for user: ${userId}`);
+    console.log(`[TaskService] Found ${userTasks.length} tasks for user: ${userId} tenant: ${tenantId}`);
     return userTasks;
   }
 }

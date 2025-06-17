@@ -27,11 +27,13 @@ describe('Task Integration Tests', () => {
         description: 'Test task description'
       };
 
+      const tenantId = 'tenant-abc';
       // Mock permission service to allow CREATE
       nock(permissionServiceBaseUrl)
-        .get('/permissions/check')
+        .get('/permissions/v2/check')
         .query({
           subjectId: userId,
+          tenantId: tenantId,
           domain: 'TASK',
           action: 'CREATE'
         })
@@ -40,6 +42,7 @@ describe('Task Integration Tests', () => {
       const response = await request(app)
         .post('/tasks')
         .set('identity-user-id', userId)
+        .set('identity-tenant-id', tenantId)
         .send(taskData);
 
       expect(response.status).toBe(201);
@@ -67,6 +70,23 @@ describe('Task Integration Tests', () => {
       expect(response.body).toEqual({ error: 'User ID not provided' });
     });
 
+    it('should return 401 when tenant ID is not provided', async () => {
+      const userId = 'user-123';
+      const taskData = {
+        projectId: 'project-456',
+        name: 'Test Task',
+        description: 'Test task description'
+      };
+
+      const response = await request(app)
+        .post('/tasks')
+        .set('identity-user-id', userId)
+        .send(taskData);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({ error: 'Tenant ID not provided' });
+    });
+
     it('should return 403 when user does not have permission', async () => {
       const userId = 'user-123';
       const taskData = {
@@ -75,11 +95,13 @@ describe('Task Integration Tests', () => {
         description: 'Test task description'
       };
 
+      const tenantId = 'tenant-abc';
       // Mock permission service to deny CREATE
       nock(permissionServiceBaseUrl)
-        .get('/permissions/check')
+        .get('/permissions/v2/check')
         .query({
           subjectId: userId,
+          tenantId: tenantId,
           domain: 'TASK',
           action: 'CREATE'
         })
@@ -88,6 +110,7 @@ describe('Task Integration Tests', () => {
       const response = await request(app)
         .post('/tasks')
         .set('identity-user-id', userId)
+        .set('identity-tenant-id', tenantId)
         .send(taskData);
 
       expect(response.status).toBe(403);
@@ -99,11 +122,13 @@ describe('Task Integration Tests', () => {
     it('should get tasks when user has permission', async () => {
       const userId = 'user-123';
 
+      const tenantId = 'tenant-xyz';
       // Mock permission service to allow LIST
       nock(permissionServiceBaseUrl)
-        .get('/permissions/check')
+        .get('/permissions/v2/check')
         .query({
           subjectId: userId,
+          tenantId: tenantId,
           domain: 'TASK',
           action: 'LIST'
         })
@@ -111,7 +136,8 @@ describe('Task Integration Tests', () => {
 
       const response = await request(app)
         .get('/tasks')
-        .set('identity-user-id', userId);
+        .set('identity-user-id', userId)
+        .set('identity-tenant-id', tenantId);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -125,14 +151,27 @@ describe('Task Integration Tests', () => {
       expect(response.body).toEqual({ error: 'User ID not provided' });
     });
 
+    it('should return 401 when tenant ID is not provided', async () => {
+      const userId = 'user-123';
+
+      const response = await request(app)
+        .get('/tasks')
+        .set('identity-user-id', userId);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({ error: 'Tenant ID not provided' });
+    });
+
     it('should return 403 when user does not have permission', async () => {
       const userId = 'user-123';
 
+      const tenantId = 'tenant-xyz';
       // Mock permission service to deny LIST
       nock(permissionServiceBaseUrl)
-        .get('/permissions/check')
+        .get('/permissions/v2/check')
         .query({
           subjectId: userId,
+          tenantId: tenantId,
           domain: 'TASK',
           action: 'LIST'
         })
@@ -140,7 +179,8 @@ describe('Task Integration Tests', () => {
 
       const response = await request(app)
         .get('/tasks')
-        .set('identity-user-id', userId);
+        .set('identity-user-id', userId)
+        .set('identity-tenant-id', tenantId);
 
       expect(response.status).toBe(403);
       expect(response.body.error).toContain('Insufficient permissions');
@@ -149,6 +189,7 @@ describe('Task Integration Tests', () => {
     it('should return only tasks created by the user', async () => {
       const userId1 = 'user-123';
       const userId2 = 'user-456';
+      const tenantId = 'tenant-tenant-create-list';
       const taskData = {
         projectId: 'project-789',
         name: 'User Task',
@@ -157,9 +198,10 @@ describe('Task Integration Tests', () => {
 
       // Create task for user1
       nock(permissionServiceBaseUrl)
-        .get('/permissions/check')
+        .get('/permissions/v2/check')
         .query({
           subjectId: userId1,
+          tenantId: tenantId,
           domain: 'TASK',
           action: 'CREATE'
         })
@@ -168,13 +210,15 @@ describe('Task Integration Tests', () => {
       await request(app)
         .post('/tasks')
         .set('identity-user-id', userId1)
+        .set('identity-tenant-id', tenantId)
         .send(taskData);
 
       // Get tasks for user2 (should be empty)
       nock(permissionServiceBaseUrl)
-        .get('/permissions/check')
+        .get('/permissions/v2/check')
         .query({
           subjectId: userId2,
+          tenantId: tenantId,
           domain: 'TASK',
           action: 'LIST'
         })
@@ -182,7 +226,8 @@ describe('Task Integration Tests', () => {
 
       const response = await request(app)
         .get('/tasks')
-        .set('identity-user-id', userId2);
+        .set('identity-user-id', userId2)
+        .set('identity-tenant-id', tenantId);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
