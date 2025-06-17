@@ -10,16 +10,13 @@ export class TaskController {
 
   async createTask(req: Request, res: Response): Promise<void> {
     try {
-      console.log('createTask called with body:', req.body);
       const userId = this.identityProvider.getUserId(req);
       if (!userId) {
-        console.warn('User ID not provided for createTask');
         res.status(401).json({ error: 'User ID not provided' });
         return;
       }
 
       const task = await this.taskService.createTask(userId, req.body);
-      console.log('Task created:', task);
       res.status(201).json(task);
     } catch (error) {
       console.error('Error occurred in createTask:', error);
@@ -33,16 +30,13 @@ export class TaskController {
 
   async getTasks(req: Request, res: Response): Promise<void> {
     try {
-      console.log('getTasks called');
       const userId = this.identityProvider.getUserId(req);
       if (!userId) {
-        console.warn('User ID not provided for getTasks');
         res.status(401).json({ error: 'User ID not provided' });
         return;
       }
 
       const tasks = await this.taskService.getTasks(userId);
-      console.log(`Tasks retrieved for user ${userId}:`, tasks);
       res.status(200).json(tasks);
     } catch (error) {
       console.error('Error occurred in getTasks:', error);
