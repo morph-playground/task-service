@@ -2,11 +2,15 @@ import request from 'supertest';
 import express from 'express';
 import { createApp } from '../../src/app';
 
+const permissionServiceHost = 'localhost';
+const permissionServicePort = 3001;
+const permissionServiceBaseUrl = `http://${permissionServiceHost}:${permissionServicePort}`;
+
 describe('Health Integration Tests', () => {
   let app: express.Application;
 
   beforeAll(() => {
-    app = createApp();
+    app = createApp({ host: permissionServiceHost, port: permissionServicePort });
   });
 
   describe('GET /health', () => {
