@@ -16,9 +16,18 @@ export function createApp(permissionServiceConfig: { host: string; port: number 
   const healthController = new HealthController();
   const taskController = new TaskController(taskService, identityProvider);
 
-  app.get('/health', (req, res) => healthController.getHealth(req, res));
-  app.post('/tasks', (req, res) => taskController.createTask(req, res));
-  app.get('/tasks', (req, res) => taskController.getTasks(req, res));
+  app.get('/health', (req, res) => {
+    console.log('GET /health called');
+    healthController.getHealth(req, res);
+  });
+  app.post('/tasks', (req, res) => {
+    console.log('POST /tasks called with body:', req.body);
+    taskController.createTask(req, res);
+  });
+  app.get('/tasks', (req, res) => {
+    console.log('GET /tasks called');
+    taskController.getTasks(req, res);
+  });
 
   return app;
 }
