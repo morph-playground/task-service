@@ -7,7 +7,7 @@ export interface Task {
 }
 
 // Debug: Log creation of task interfaces for troubleshooting
-console.log("[DEBUG] task.model.ts loaded: Task and CreateTaskRequest interfaces are available.");
+
 
 export interface CreateTaskRequest {
   projectId: string;
