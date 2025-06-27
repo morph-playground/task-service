@@ -6,7 +6,9 @@ export class TaskController {
   constructor(
     private taskService: TaskService,
     private identityProvider: IdentityProvider
-  ) {}
+  ) {
+    req.tenantId = this.identityProvider.getTenantId(req);
+  }
 
   async createTask(req: Request, res: Response): Promise<void> {
     try {
