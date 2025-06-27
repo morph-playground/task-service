@@ -4,7 +4,6 @@ import { createApp } from '../../src/app';
 
 const permissionServiceHost = 'localhost';
 const permissionServicePort = 3001;
-const permissionServiceBaseUrl = `http://${permissionServiceHost}:${permissionServicePort}`;
 
 describe('Health Integration Tests', () => {
   let app: express.Application;
